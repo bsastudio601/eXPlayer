@@ -5,6 +5,10 @@ import msvcrt
 import shutil
 import os
 
+
+
+#load the stuff
+
 os.system("cls")
 
 pygame.mixer.init()
@@ -16,21 +20,29 @@ song_length = pygame.mixer.Sound("music/song.mp3").get_length()
 
 
 
+#global variables and stuff
+
 playing = False
 paused = False
 song_name = "LEVEL FIVE - TUMI"
 current_lyric = "♪ Current lyric ♪"
 current_time = 0
 total_time = 0
-
 WIDTH = shutil.get_terminal_size().columns
+last_width = WIDTH
+
+
+#the time converting function for song
 
 def format_time(seconds):
     minutes = int(seconds //60)
     seconds = int(seconds % 60)
     return f"{minutes:02d}:{seconds:02d}"
-
 total_time = format_time(song_length)
+
+
+
+#lyrics converting stuff
 
 Lyrics = []
 
@@ -44,6 +56,8 @@ with open("lyrics/song.lrc", encoding="utf-8") as file:
 
         Lyrics.append((lyric_time, lyric))
 
+
+#drawing the ui 
 
 print("\033[2J\033[H", end="")
 def draw_ui():
@@ -76,24 +90,35 @@ _/ __ \ \     /  |     ___/  | \__  \<   |  |/ __ \_  __ \
     print("[ Q ] Quit".center(WIDTH))
 draw_ui()
 
+
+
+#playing the lyrics
+
 def lyrics_player():
     
     global current_lyric, current_time, progress_bar
+    global WIDTH
+
+    
+    
 
  
     last_lyric = ""
 
     while True:
+        new_width = shutil.get_terminal_size().columns 
+        
+        if new_width != WIDTH:
+                WIDTH = new_width
+                os.system("cls")
+                draw_ui()
+
+            
+
         if playing:
 
             current_time = pygame.mixer.music.get_pos() / 1000
-
-        
-
-
-
             current_lyric = ""
-
 
             for lyric_time, lyric in Lyrics:
                 if current_time >= lyric_time:
@@ -110,14 +135,16 @@ def lyrics_player():
             print(f"\033[15;1H\033[2K", end="")
             print(f"{show_time} / {total_time}".center(WIDTH), end="", flush=True)
             time.sleep(0.1)
-        
+
+
+
+# thread loading
+
 thread = threading.Thread(target=lyrics_player,daemon=True)
 thread.start()
 
 
-
-
-
+# music control
 
 while True:
 

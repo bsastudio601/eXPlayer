@@ -4,13 +4,7 @@ import time
 import msvcrt 
 import shutil
 import os
-
-
-
-#load the stuff
-
-
-
+import random
 
 
 
@@ -24,17 +18,20 @@ current_time = 0
 total_time = 0
 WIDTH = shutil.get_terminal_size().columns
 last_width = WIDTH
+songs = []
+current_song_index = 0
+song_length = 0
+music_folder = "music"
+selected_song = None
+shuffle_mode = True
 
 os.system("cls")
 pygame.mixer.init()
 
 song_path = "music/Ravyn Lenae - Love Me Not.mp3"
 
-pygame.mixer.music.load(song_path)
-song_name = os.path.splitext(os.path.basename(song_path))[0]
-song_length = pygame.mixer.Sound(song_path).get_length()
 
-lyrics_path = os.path.splitext(song_path)[0] + ".lrc"
+
 
 
 #the time converting function for song
@@ -46,24 +43,121 @@ def format_time(seconds):
 
 total_time = format_time(song_length)
 
+def load_songs(song_path):
+    global song_name, song_length, total_time, lyrics_path, Lyrics
+    pygame.mixer.music.load(song_path)
+
+    song_name = os.path.splitext(os.path.basename(song_path))[0]
+    song_length = pygame.mixer.Sound(song_path).get_length()
+
+    total_time = format_time(song_length)
+
+    lyrics_path = os.path.splitext(song_path)[0] + ".lrc"
+
 
 
 #lyrics converting stuff
 
-Lyrics = []
+    Lyrics = []
 
-if os.path.exists(lyrics_path):
-    with open(lyrics_path, encoding="utf-8") as file:
-        for line in file:
-            time_stamp, lyric = line.strip().split("]", 1)
-            time_stamp = time_stamp[1:]
+    if os.path.exists(lyrics_path):
+        with open(lyrics_path, encoding="utf-8") as file:
+            for line in file:
+                time_stamp, lyric = line.strip().split("]", 1)
+                time_stamp = time_stamp[1:]
 
-            minutes, seconds = time_stamp.split(":")
-            lyric_time = int(minutes) * 60 + float(seconds)
+                minutes, seconds = time_stamp.split(":")
+                lyric_time = int(minutes) * 60 + float(seconds)
 
-            Lyrics.append((lyric_time, lyric))
-else:
-    Lyrics = [(0, "♪ No lyrics found ♪")]
+                Lyrics.append((lyric_time, lyric))
+    else:
+        Lyrics = [(0, "♪ No lyrics found ♪")]
+
+def select_song(song_path):
+    global selected_song
+
+    load_songs(song_path)
+    selected_song = song_path
+
+def play_next_shuffle():
+    global selected_song,current_song_index
+
+    songs = get_songs()
+
+    if not songs:
+        return
+
+    current_song_index = random.randrange(len(songs))
+    selected_song = songs[current_song_index]
+
+    load_songs(selected_song)
+    pygame.mixer.music.play()
+
+    print(f"\033[9;1H\033[2K", end="")
+    print(song_name.center(WIDTH), end="", flush=True)
+
+def play_next():
+    global selected_song, current_song_index,playing
+
+    songs = get_songs()
+    if not songs:
+        return
+    current_song_index += 1
+
+    if current_song_index >= len(songs):
+        current_song_index = 0
+
+    selected_song = songs[current_song_index]
+    load_songs(selected_song)
+    pygame.mixer.music.play()
+
+    playing = True
+
+    print(f"\033[9;1H\033[2K", end="")
+    print(song_name.center(WIDTH), end="", flush=True)
+
+def play_previous():
+    global selected_song, current_song_index, playing
+
+    songs = get_songs()
+    if not songs:
+        return
+    current_song_index -= 1
+
+    if current_song_index <0:
+        current_song_index = len(songs) -1
+        
+    selected_song = songs[current_song_index]
+    load_songs(selected_song)
+    pygame.mixer.music.play()
+
+    playing = True
+
+    print(f"\033[9;1H\033[2K", end="")
+    print(song_name.center(WIDTH), end="", flush=True)
+
+
+
+def list_folder():
+    if not os.path.exists(music_folder):
+        print("Music folder not found. Please create a 'music' folder and add your songs.")
+        return
+    print("Available songs:")
+    print(f"Contents of: {music_folder}")
+
+    files = os.listdir(music_folder)
+
+    for file in files:
+        print(file)
+    print()
+
+def get_songs():
+    if not os.path.isdir(music_folder):
+        return []
+    return [os.path.join(music_folder,file)
+            for file in os.listdir(music_folder)
+            if file.lower().endswith(".mp3")
+            ]
 
 
 
@@ -93,11 +187,10 @@ _/ __ \ \     /  |     ___/  | \__  \<   |  |/ __ \_  __ \
     print(f"{current_time} / {total_time}".center(WIDTH))
     print()
 
-    print("[ P ] Play".center(WIDTH))
-    print("[ SPACE ] Pause".center(WIDTH))
-    print("[ R ] Resume".center(WIDTH))
-    print("[ S ] Stop".center(WIDTH))
-    print("[ Q ] Quit".center(WIDTH))
+    print("[ P ] Play             [ O ] Pause".center(WIDTH))
+    print("[ B ] Previous         [ N ] Next ".center(WIDTH))
+    print("[ S ] Stop             [ Q ] Quit".center(WIDTH))
+    print("[ C ] Settings and Modes".center(WIDTH))
 draw_ui()
 
 
@@ -121,6 +214,11 @@ def lyrics_player():
                 draw_ui()
 
             
+        if playing and not pygame.mixer.music.get_busy():
+            if shuffle_mode:
+                play_next_shuffle()
+            else:
+                playing = False
 
         if playing:
 
@@ -151,6 +249,7 @@ def lyrics_player():
             time.sleep(0.1)
 
 def command_win():
+    global playing,music_folder,songs,current_song_index,shuffle_mode,command_mode
     os.system("cls")
 
     print("exPlayer Commands")
@@ -163,16 +262,75 @@ def command_win():
         commands = input('eXPlayer> ')
         if commands == "help":
             print("Available commands:")
-            print("help - Show available commands")
-            print("back - Return to the player")
-            print("exit - Exit the program")
+            print("help                - Show available commands")
+            print("about               - info about eXplayer and how to use it")
+            print("back                - Return to the player")
+            print('cd "[path]"         - Select the music folder')
+            print('ls                  - show available files in the folder')
+            print('select "[song name]"- select individual song to play')
+            print('shuffle             - toggle shuffle on and off (normally on)')
             print()
+
+        elif commands == "about":
+            print("eXPlayer")
+            print("made by Aritro Halder")
+            print()
+
         elif commands == "back":
+            command_mode = False
             os.system("cls")
             draw_ui()
-            pygame.mixer.music.unpause()
-            playing = True
             break
+
+        elif commands.startswith("cd "):
+            folder = commands[3:].strip('"')
+
+            if os.path.isdir(folder):
+                music_folder = os.path.abspath(folder)
+                print()
+                print(f"Music folder changed to: {music_folder}")
+
+            else:
+                print("Directory not found")
+
+        elif commands == "ls":
+            list_folder()
+
+        elif commands == "shuffle":
+            shuffle_mode = not shuffle_mode
+
+            if shuffle_mode:
+                print()
+                print("Shuffle mode: ON")
+                print()
+            else:
+                print()
+                print("Shuffle mode: OFF")
+                print()            
+
+
+        elif commands.startswith("select "):
+            song = commands[7:].strip('"')
+            song_path = os.path.join(music_folder, song)
+
+            if os.path.isfile(song_path) and song.lower().endswith(".mp3"):
+
+                songs = get_songs()
+
+                if song_path in songs:
+                    current_song_index = songs.index(song_path)
+
+                select_song(song_path)
+
+                print()
+                print(f"Selected: {song_name}")
+                print()
+
+            else:
+                print()
+                print("Song not found")
+                print()
+                
         else:
             print(f"Unknown command: {commands}")
             print('type "help" for available commands')
@@ -193,10 +351,11 @@ while True:
         key = msvcrt.getwch()
 
         if key == "p":
-            pygame.mixer.music.play()
-            playing = True
+            if selected_song:
+                pygame.mixer.music.play()
+                playing = True
 
-        elif key == " ":
+        elif key == "o":
             pygame.mixer.music.pause()
             playing = False
 
@@ -212,10 +371,17 @@ while True:
             pygame.mixer.music.pause()
             playing = False
             command_win()
+        elif key == "n":
+            play_next()
+            
+        elif key == "b":
+            play_previous()
             
 
         elif key == "q":
             pygame.mixer.music.stop()
+            pygame.mixer.quit()
+            os.system("cls")
             break
 
     time.sleep(0.05)

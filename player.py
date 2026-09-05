@@ -28,7 +28,6 @@ shuffle_mode = True
 os.system("cls")
 pygame.mixer.init()
 
-song_path = "music/Ravyn Lenae - Love Me Not.mp3"
 
 
 
@@ -160,7 +159,6 @@ def get_songs():
             ]
 
 
-
 #drawing the ui 
 
 print("\033[2J\033[H", end="")
@@ -249,7 +247,7 @@ def lyrics_player():
             time.sleep(0.1)
 
 def command_win():
-    global playing,music_folder,songs,current_song_index,shuffle_mode,command_mode
+    global playing,music_folder,songs,current_song_index,shuffle_mode,command_mode,selected_song
     os.system("cls")
 
     print("exPlayer Commands")
@@ -287,6 +285,9 @@ def command_win():
 
             if os.path.isdir(folder):
                 music_folder = os.path.abspath(folder)
+                selected_song = None
+                current_song_index = 0
+                
                 print()
                 print(f"Music folder changed to: {music_folder}")
 
@@ -354,6 +355,9 @@ while True:
             if selected_song:
                 pygame.mixer.music.play()
                 playing = True
+            elif shuffle_mode:
+                play_next_shuffle()
+                playing = True
 
         elif key == "o":
             pygame.mixer.music.pause()
@@ -375,8 +379,7 @@ while True:
             play_next()
             
         elif key == "b":
-            play_previous()
-            
+            play_previous()    
 
         elif key == "q":
             pygame.mixer.music.stop()

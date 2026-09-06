@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eXPlayer"
+version = "0.1.0"
+description = "A lightweight terminal-based music player with synchronized lyrics."
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "pygame>=2.6.0"
+]
+
+[project.scripts]
+explayer = "explayer.player:main"

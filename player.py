@@ -30,6 +30,8 @@ os.system("cls")
 pygame.mixer.init()
 
 
+#config save and load function
+
 def load_config():
     global music_folder,shuffle_mode
     if os.path.exists("config.json"):
@@ -47,10 +49,6 @@ def save_config():
     }
     with open("config.json","w") as f:
         json.dump(config, f, indent=4)
-
-
-
-
 
 
 #the time converting function for song
@@ -98,6 +96,21 @@ def select_song(song_path):
     load_songs(song_path)
     selected_song = song_path
 
+def select_first_song():
+    global selected_song, current_song_index, playing
+
+    songs = get_songs()
+    if not songs:
+        return
+    current_song_index = 0
+    selected_song = songs[0]
+    load_songs(selected_song)
+    pygame.mixer.music.play()
+    playing = True
+
+    print(f"\033[9;1H\033[2K", end="")
+    print(song_name.center(WIDTH), end="", flush=True)
+
 def play_next_shuffle():
     global selected_song,current_song_index
 
@@ -129,6 +142,7 @@ def play_next():
     selected_song = songs[current_song_index]
     load_songs(selected_song)
     pygame.mixer.music.play()
+    time.sleep(0.1)
 
     playing = True
 
@@ -149,6 +163,7 @@ def play_previous():
     selected_song = songs[current_song_index]
     load_songs(selected_song)
     pygame.mixer.music.play()
+    time.sleep(0.1)
 
     playing = True
 
@@ -207,7 +222,7 @@ _/ __ \ \     /  |     ___/  | \__  \<   |  |/ __ \_  __ \
 
     print("[ P ] Play             [ O ] Pause".center(WIDTH))
     print("[ B ] Previous         [ N ] Next ".center(WIDTH))
-    print("[ S ] Stop             [ Q ] Quit".center(WIDTH))
+    print("[ R ] Resume           [ Q ] Quit".center(WIDTH))
     print("[ C ] Settings and Modes".center(WIDTH))
 draw_ui()
 
@@ -380,6 +395,9 @@ while True:
             elif shuffle_mode:
                 play_next_shuffle()
                 playing = True
+            else:
+                select_first_song()
+                playing = True
 
         elif key == "o":
             pygame.mixer.music.pause()
@@ -397,6 +415,7 @@ while True:
             pygame.mixer.music.pause()
             playing = False
             command_win()
+
         elif key == "n":
             play_next()
             

@@ -28,10 +28,19 @@ shuffle_mode = True
 
 #config save and load function
 
+def get_config_path():
+    appdata = os.getenv("LOCALAPPDATA")
+    config_dir = os.path.join(appdata, "eXPlayer")
+    os.makedirs(config_dir,exist_ok=True)
+    return os.path.join(config_dir, "config.json")
+
 def load_config():
     global music_folder,shuffle_mode
-    if os.path.exists("config.json"):
-        with open("config.json","r") as f:
+
+    config_path = get_config_path()
+
+    if os.path.exists(config_path):
+        with open(config_path,"r") as f:
             config = json.load(f)
         music_folder = config.get("music_folder","music")
         shuffle_mode = config.get("shuffle_mode",True)
@@ -42,7 +51,9 @@ def save_config():
         "music_folder": music_folder,
         "shuffle_mode": shuffle_mode
     }
-    with open("config.json","w") as f:
+
+    config_path = get_config_path()
+    with open(config_path,"w") as f:
         json.dump(config, f, indent=4)
 
 
@@ -199,14 +210,16 @@ def get_songs():
 
 def draw_ui():
 
-    print(r"""
+    logo = r"""
        ____  _____________.__
   ____ \   \/  /\______   \  | _____  ___.__. ___________
 _/ __ \ \     /  |     ___/  | \__  \<   |  |/ __ \_  __ \
 \  ___/ /     \  |    |   |  |__/ __ \\___  \  ___/|  | \/
  \___  >___/\  \ |____|   |____(____  / ____|\___  >__|
      \/      \_/                    \/\/         \/
-""")
+    """
+    for line in logo.splitlines():
+        print(line.center(WIDTH))
 
     print(song_name.center(WIDTH))
     print()
@@ -397,6 +410,7 @@ def command_win():
 # thread loading
 
 def main ():
+    global playing
     os.system("cls")
     pygame.mixer.init()
 
@@ -421,12 +435,16 @@ def main ():
                 if selected_song:
                     pygame.mixer.music.play()
                     playing = True
-                elif shuffle_mode:
-                    play_next_shuffle()
-                    playing = True
                 else:
-                    select_first_song()
-                    playing = True
+                    if not songs:
+                        print(
+                            "No music folder selected. Press [ C ] and use: cd \"[path]\"".center(WIDTH),end="",flush=True)
+                    elif shuffle_mode:
+                        play_next_shuffle()
+                        playing = True
+                    else:
+                        select_first_song()
+                        playing = True
 
             elif key == "o":
                 pygame.mixer.music.pause()

@@ -1,13 +1,15 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "eXPlayer"
-version = "0.1.0"
-description = "A lightweight terminal-based music player with synchronized lyrics."
+name = "explayer"
+version = "1.0.0"
+authors = [{name = "Aritro Halder", email = "studiozzzz033@gmail.com"}]
+description = "A terminal-based music player with synchronized LRC lyrics"
 readme = "README.md"
 requires-python = ">=3.11"
+license = { file = "LICENSE.txt" }
 
 dependencies = [
     "pygame>=2.6.0"
@@ -15,3 +17,9 @@ dependencies = [
 
 [project.scripts]
 explayer = "explayer.player:main"
+
+[tool.setuptools]
+packages = ["explayer"]
+
+[tool.setuptools.package-data]
+explayer = ["config.json"]

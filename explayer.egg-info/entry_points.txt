@@ -1,0 +1,2 @@
+[console_scripts]
+explayer = explayer.player:main

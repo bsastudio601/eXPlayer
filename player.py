@@ -6,6 +6,7 @@ import shutil
 import os
 import random
 
+import json
 
 
 #global variables and stuff
@@ -27,6 +28,25 @@ shuffle_mode = True
 
 os.system("cls")
 pygame.mixer.init()
+
+
+def load_config():
+    global music_folder,shuffle_mode
+    if os.path.exists("config.json"):
+        with open("config.json","r") as f:
+            config = json.load(f)
+        music_folder = config.get("music_folder","music")
+        shuffle_mode = config.get("shuffle_mode",True)
+
+load_config()
+
+def save_config():
+    config = {
+        "music_folder": music_folder,
+        "shuffle_mode": shuffle_mode
+    }
+    with open("config.json","w") as f:
+        json.dump(config, f, indent=4)
 
 
 
@@ -285,6 +305,7 @@ def command_win():
 
             if os.path.isdir(folder):
                 music_folder = os.path.abspath(folder)
+                save_config()
                 selected_song = None
                 current_song_index = 0
                 
@@ -299,6 +320,7 @@ def command_win():
 
         elif commands == "shuffle":
             shuffle_mode = not shuffle_mode
+            save_config()
 
             if shuffle_mode:
                 print()

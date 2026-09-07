@@ -35,7 +35,7 @@ def get_config_path():
     return os.path.join(config_dir, "config.json")
 
 def load_config():
-    global music_folder,shuffle_mode
+    global music_folder,shuffle_mode,songs
 
     config_path = get_config_path()
 
@@ -45,6 +45,8 @@ def load_config():
         music_folder = config.get("music_folder","music")
         shuffle_mode = config.get("shuffle_mode",True)
 
+        songs = get_songs()
+
 
 def save_config():
     config = {
@@ -53,6 +55,9 @@ def save_config():
     }
 
     config_path = get_config_path()
+
+    print(f"\nCONFIG SAVED TO: {config_path}\n")
+    
     with open(config_path,"w") as f:
         json.dump(config, f, indent=4)
 
@@ -86,13 +91,20 @@ def load_songs(song_path):
     if os.path.exists(lyrics_path):
         with open(lyrics_path, encoding="utf-8") as file:
             for line in file:
-                time_stamp, lyric = line.strip().split("]", 1)
-                time_stamp = time_stamp[1:]
+                line = line.strip()
 
-                minutes, seconds = time_stamp.split(":")
-                lyric_time = int(minutes) * 60 + float(seconds)
+                if not line.startswith("[") or "]" not in line:
+                    continue
+                try:
+                    time_stamp, lyric = line.strip().split("]", 1)
+                    time_stamp = time_stamp[1:]
 
-                Lyrics.append((lyric_time, lyric))
+                    minutes, seconds = time_stamp.split(":")
+                    lyric_time = int(minutes) * 60 + float(seconds)
+
+                    Lyrics.append((lyric_time, lyric))
+                except ValueError:
+                    continue
     else:
         Lyrics = [(0, "♪ No lyrics found ♪")]
 
@@ -210,16 +222,23 @@ def get_songs():
 
 def draw_ui():
 
-    logo = r"""
-       ____  _____________.__
-  ____ \   \/  /\______   \  | _____  ___.__. ___________
+    logo = r"""    
+       ____  _____________.__                             
+  ____ \   \/  /\______   \  | _____  ___.__. ___________ 
 _/ __ \ \     /  |     ___/  | \__  \<   |  |/ __ \_  __ \
 \  ___/ /     \  |    |   |  |__/ __ \\___  \  ___/|  | \/
- \___  >___/\  \ |____|   |____(____  / ____|\___  >__|
-     \/      \_/                    \/\/         \/
+ \___  >___/\  \ |____|   |____(____  / ____|\___  >__|   
+     \/      \_/                    \/\/         \/       
     """
-    for line in logo.splitlines():
-        print(line.center(WIDTH))
+    logo_lines = logo.splitlines()
+
+    logo_width = max(len(line) for line in logo_lines)
+
+    # Calculate the left padding needed to center the entire logo
+    padding = max(0, (WIDTH - logo_width) // 2)
+
+    for line in logo_lines:
+        print(" " * padding + line)
 
     print(song_name.center(WIDTH))
     print()

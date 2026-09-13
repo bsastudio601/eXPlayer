@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "explayer"
-version = "1.0.0"
+version = "1.0.1"
 authors = [{name = "Aritro Halder", email = "studiozzzz033@gmail.com"}]
 description = "A terminal-based music player with synchronized LRC lyrics"
 readme = "README.md"

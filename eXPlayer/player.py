@@ -45,7 +45,7 @@ def load_config():
         music_folder = config.get("music_folder","music")
         shuffle_mode = config.get("shuffle_mode",True)
 
-        songs = get_songs()
+    songs = get_songs()
 
 
 def save_config():
@@ -370,6 +370,7 @@ def command_win():
 
             if os.path.isdir(folder):
                 music_folder = os.path.abspath(folder)
+                song = get_songs()
                 save_config()
                 selected_song = None
                 current_song_index = 0

@@ -370,7 +370,7 @@ def command_win():
 
             if os.path.isdir(folder):
                 music_folder = os.path.abspath(folder)
-                song = get_songs()
+                songs = get_songs()
                 save_config()
                 selected_song = None
                 current_song_index = 0

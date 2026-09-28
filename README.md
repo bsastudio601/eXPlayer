@@ -29,6 +29,8 @@ it will open the player window, now you need to set the directory or music folde
 ```bash
 cd "[music folder path]"
 ```
+## YOU HAVE TO USE "" ORTHERWISE IT WON'T WORK.
+
 and head back to the player with
 ```bash
 back

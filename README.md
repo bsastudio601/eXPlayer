@@ -11,6 +11,12 @@ pip install explayer
 ```
 to install eXPlayer. You need to have python 3.11 or later to install and run it!
 
+if you have explayer already installed or want to update run this 
+
+```bash
+pip install explayer -U
+```
+
 # How to use it? 
 After using the command to install it simply run
 

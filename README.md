@@ -6,10 +6,18 @@ eXPlayer is a terminal based music player with lyrics support. The player includ
 
 # Installing
 
+## runing the exe release [ recommended to use this ]
+
+
+you have to download the latest explayer.exe from the release and double click on it to run it. 
+It required python 3.11 or later.
+
+## running the pip package [ Only python 3.11.9 it is a bit broken for now ]
+
 ```bash
 pip install explayer 
 ```
-to install eXPlayer. You need to have python 3.11 or later to install and run it!
+to install eXPlayer. You need to have python 3.11 install and run it ! 
 
 if you have explayer already installed or want to update run this 
 
@@ -42,6 +50,15 @@ run the command
 help
 ```
 to learn about more commands!
+
+# Debugging 
+one issue might occur if you have an old config.json file
+in this case delete the config.json from: 
+
+```bash
+%LOCALAPPDATA%\eXPlayer
+```
+and rerun the program
 
 # Screenshot and videos
 

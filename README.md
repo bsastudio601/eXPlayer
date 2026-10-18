@@ -1,6 +1,6 @@
 # eXPlayer
 
-**Platform:** eXPlayer currently supports **Windows only**.
+**Platform:** eXPlayer currently supports **Windows only** and **.mp3 FILES ONLY***
 
 eXPlayer is a terminal based music player with lyrics support. The player includes a command window to change settings and other functions!
 
@@ -25,7 +25,7 @@ if you have explayer already installed or want to update run this
 pip install explayer -U
 ```
 
-# How to use it? 
+# How to use it? [ Can only run mp3 files as it uses pygame ]
 After using the command to install it simply run
 
 ```bash
